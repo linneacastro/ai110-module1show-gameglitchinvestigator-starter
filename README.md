@@ -49,3 +49,4 @@ I fixed four core logic/state issues in the game. First, I corrected the compari
 ## 🚀 Stretch Features
 
 - [ ] [If you choose to complete Challenge 4, insert a screenshot of your Enhanced Game UI here]
+![My extra tests with passing results](<Screenshot 2026-03-15 at 16.53.29.png>)
