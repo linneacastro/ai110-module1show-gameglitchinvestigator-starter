@@ -146,3 +146,54 @@ def test_apply_guess_correct_on_final_attempt_marks_game_won():
     assert state["status"] == "won"
     assert state["attempts"] == 6
     assert state["history"][-1] == 23
+
+
+def test_apply_guess_rejects_decimal_input_without_using_attempt():
+    state = {
+        "secret": 42,
+        "attempts": 0,
+        "score": 0,
+        "status": "playing",
+        "history": [],
+    }
+
+    result = apply_guess("12.5", state, attempt_limit=6, guess_range=(1, 50))
+
+    assert result["kind"] == "error"
+    assert "whole number" in result["message"]
+    assert state["attempts"] == 0
+    assert state["history"] == []
+
+
+def test_apply_guess_rejects_negative_number_out_of_range():
+    state = {
+        "secret": 42,
+        "attempts": 0,
+        "score": 0,
+        "status": "playing",
+        "history": [],
+    }
+
+    result = apply_guess("-7", state, attempt_limit=6, guess_range=(1, 50))
+
+    assert result["kind"] == "error"
+    assert "between 1 and 50" in result["message"]
+    assert state["attempts"] == 0
+    assert state["history"] == []
+
+
+def test_apply_guess_rejects_extremely_large_number_without_crashing():
+    state = {
+        "secret": 42,
+        "attempts": 0,
+        "score": 0,
+        "status": "playing",
+        "history": [],
+    }
+
+    result = apply_guess("999999999999999999999999", state, attempt_limit=6, guess_range=(1, 50))
+
+    assert result["kind"] == "error"
+    assert "too large" in result["message"]
+    assert state["attempts"] == 0
+    assert state["history"] == []

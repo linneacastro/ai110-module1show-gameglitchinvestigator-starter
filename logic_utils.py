@@ -8,6 +8,8 @@ DIFFICULTY_SETTINGS = {
     "Hard": {"range": (1, 100), "attempts": 5},
 }
 
+MAX_GUESS_DIGITS = 12
+
 
 def get_range_for_difficulty(difficulty: str):
     """Return (low, high) inclusive range for a given difficulty."""
@@ -54,18 +56,36 @@ def parse_guess(raw: str):
     if raw is None:
         return False, None, "Enter a guess."
 
-    if raw == "":
+    text = str(raw).strip()
+    if text == "":
         return False, None, "Enter a guess."
 
-    try:
-        if "." in raw:
-            value = int(float(raw))
-        else:
-            value = int(raw)
-    except Exception:
-        return False, None, "That is not a number."
+    signless_text = text.lstrip("+-")
+    if signless_text == "" or not signless_text.isdigit():
+        return False, None, "Enter a whole number."
+
+    normalized_digits = signless_text.lstrip("0") or "0"
+    if len(normalized_digits) > MAX_GUESS_DIGITS:
+        return False, None, "That number is too large."
+
+    value = int(text)
 
     return True, value, None
+
+
+def validate_guess_range(
+    guess: int,
+    guess_range: tuple[int, int] | None,
+):
+    """Return (ok, error_message) for in-range validation."""
+    if guess_range is None:
+        return True, None
+
+    low, high = guess_range
+    if guess < low or guess > high:
+        return False, f"Enter a number between {low} and {high}."
+
+    return True, None
 
 
 def is_duplicate_guess(guess: int, history: Iterable[Any]) -> bool:
@@ -120,6 +140,7 @@ def apply_guess(
     raw_guess: str,
     game_state: MutableMapping[str, Any],
     attempt_limit: int,
+    guess_range: tuple[int, int] | None = None,
 ):
     """
     Apply one guess to game state and return structured result metadata.
@@ -135,6 +156,15 @@ def apply_guess(
         return {
             "kind": "error",
             "message": err,
+            "hint_message": None,
+            "outcome": None,
+        }
+
+    in_range, range_err = validate_guess_range(guess_int, guess_range)
+    if not in_range:
+        return {
+            "kind": "error",
+            "message": range_err,
             "hint_message": None,
             "outcome": None,
         }

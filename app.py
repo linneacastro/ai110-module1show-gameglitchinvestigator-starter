@@ -84,7 +84,7 @@ if st.session_state.status != "playing":
     st.stop()
 
 if submit:
-    result = apply_guess(raw_guess, st.session_state, attempt_limit)
+    result = apply_guess(raw_guess, st.session_state, attempt_limit, (low, high))
 
     if result["kind"] == "error":
         st.error(result["message"])
