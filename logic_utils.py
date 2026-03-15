@@ -18,7 +18,16 @@ def check_guess(guess, secret):
 
     outcome examples: "Win", "Too High", "Too Low"
     """
-    raise NotImplementedError("Refactor this function from app.py into logic_utils.py")
+    guess_value = int(guess)
+    secret_value = int(secret)
+
+    if guess_value == secret_value:
+        return "Win", "🎉 Correct!"
+
+    if guess_value > secret_value:
+        return "Too High", "📉 Go LOWER!"
+
+    return "Too Low", "📈 Go HIGHER!"
 
 
 def update_score(current_score: int, outcome: str, attempt_number: int):

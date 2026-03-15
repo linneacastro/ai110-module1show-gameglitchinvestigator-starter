@@ -1,16 +1,19 @@
 from logic_utils import check_guess
 
+
 def test_winning_guess():
-    # If the secret is 50 and guess is 50, it should be a win
-    result = check_guess(50, 50)
-    assert result == "Win"
+    outcome, message = check_guess(50, 50)
 
-def test_guess_too_high():
-    # If secret is 50 and guess is 60, hint should be "Too High"
-    result = check_guess(60, 50)
-    assert result == "Too High"
+    assert outcome == "Win"
+    assert "Correct" in message
 
-def test_guess_too_low():
-    # If secret is 50 and guess is 40, hint should be "Too Low"
-    result = check_guess(40, 50)
-    assert result == "Too Low"
+
+#FIX: Had Copilot Agent Mode Fix this Test
+def test_check_guess_reports_high_and_low_in_correct_direction():
+    too_high_outcome, too_high_message = check_guess(60, 50)
+    too_low_outcome, too_low_message = check_guess(40, 50)
+
+    assert too_high_outcome == "Too High"
+    assert "LOWER" in too_high_message
+    assert too_low_outcome == "Too Low"
+    assert "HIGHER" in too_low_message
