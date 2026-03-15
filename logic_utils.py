@@ -2,27 +2,23 @@ import random
 from typing import Any, Callable, Iterable
 
 
-ATTEMPT_LIMITS = {
-    "Easy": 6,
-    "Normal": 8,
-    "Hard": 5,
+DIFFICULTY_SETTINGS = {
+    "Easy": {"range": (1, 20), "attempts": 8},
+    "Normal": {"range": (1, 50), "attempts": 6},
+    "Hard": {"range": (1, 100), "attempts": 5},
 }
 
 
 def get_range_for_difficulty(difficulty: str):
     """Return (low, high) inclusive range for a given difficulty."""
-    if difficulty == "Easy":
-        return 1, 20
-    if difficulty == "Normal":
-        return 1, 100
-    if difficulty == "Hard":
-        return 1, 50
-    return 1, 100
+    settings = DIFFICULTY_SETTINGS.get(difficulty, DIFFICULTY_SETTINGS["Normal"])
+    return settings["range"]
 
 
 def get_attempt_limit_for_difficulty(difficulty: str) -> int:
     """Return the maximum number of attempts for a difficulty."""
-    return ATTEMPT_LIMITS.get(difficulty, ATTEMPT_LIMITS["Normal"])
+    settings = DIFFICULTY_SETTINGS.get(difficulty, DIFFICULTY_SETTINGS["Normal"])
+    return settings["attempts"]
 
 
 def get_guess_input_key(difficulty: str, game_number: int) -> str:

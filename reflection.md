@@ -12,7 +12,7 @@ When I first ran the game, there were several noticeable bugs, but the game seem
 ✅ 2. It let me guess the number 99 several times, ie. it kept counting that number as one of my guesses instead of telling me that I had already guessed that number before.
   (for example: "the secret number kept changing" or "the hints were backwards").
 ✅ 3. When I click "New Game" after exhausting my turns in the first game, it doesn't reset anything unless I refresh the browser window.
-4. The difficulty levels don't seem to match. Easy is 1-20 range with 6 attempts. Normal is 1-100 range with 8 attempts. Hard is 1-50 with 5 attempts. 
+✅ 4. The difficulty levels don't seem to match. Easy is 1-20 range with 6 attempts. Normal is 1-100 range with 8 attempts. Hard is 1-50 with 5 attempts. 
 5. In Normal mode, it says I have 8 attempts, but at 7, it says Game over. Array only contains guesses 0-6 (7 total, not 8). It doesn't look like the first guess is being stored in the history array.
 
 ---

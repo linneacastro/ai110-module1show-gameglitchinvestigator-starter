@@ -2,6 +2,7 @@ from logic_utils import (
     check_guess,
     get_attempt_limit_for_difficulty,
     get_guess_input_key,
+    get_range_for_difficulty,
     is_duplicate_guess,
     new_game_state,
 )
@@ -37,9 +38,15 @@ def test_is_duplicate_guess_accepts_new_number():
 
 
 def test_attempt_limit_matches_selected_difficulty():
-    assert get_attempt_limit_for_difficulty("Easy") == 6
-    assert get_attempt_limit_for_difficulty("Normal") == 8
+    assert get_attempt_limit_for_difficulty("Easy") == 8
+    assert get_attempt_limit_for_difficulty("Normal") == 6
     assert get_attempt_limit_for_difficulty("Hard") == 5
+
+
+def test_difficulty_ranges_scale_with_difficulty():
+    assert get_range_for_difficulty("Easy") == (1, 20)
+    assert get_range_for_difficulty("Normal") == (1, 50)
+    assert get_range_for_difficulty("Hard") == (1, 100)
 
 
 def test_new_game_state_resets_fields_and_picks_secret_in_range():
