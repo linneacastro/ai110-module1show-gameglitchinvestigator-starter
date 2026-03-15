@@ -42,12 +42,16 @@ Yes! The AI helped me design the test. At first, I didn't understand what it was
 ## 4. What did you learn about Streamlit and state?
 
 - How would you explain Streamlit "reruns" and session state to a friend who has never used Streamlit?
+This was really interesting for me. In this process, I learned that streamlit stores everything in a session state. It's really important to keep this updated because every click essentially runs through the whole script from top to bottom, keeping the important information about the game in the session state (this is things like previous guesses, etc.). This means that it's really important to map out the behavior you want the game to have and think about how you are going to relay changes into the session state ("memory").
 
 ---
 
 ## 5. Looking ahead: your developer habits
 
 - What is one habit or strategy from this project that you want to reuse in future labs or projects?
+I love the way that I interacted with the program and found the bugs myself first, rather than defaulting to the agent finding this for me. This way, I could better vet the fixes because I understood what was driving them. I also like that I approached the fix one thing at a time. Doing things bit-by-bit allowed me to portion things off into commits that were intentional and targeted.
   - This could be a testing habit, a prompting strategy, or a way you used Git.
 - What is one thing you would do differently next time you work with AI on a coding task?
+The next time, I would give more instructions to the agent beforehand. I think that some of hte fixes it gave were incredibly verbose. I would also have it insert documentation into the code so that there were more comments and evidence of changes made. 
 - In one or two sentences, describe how this project changed the way you think about AI generated code.
+Prior to this exercise, I had never used Github Copilot before and was quite intimidated. I also didn't really understand what it was like to develop and create tests at the same time - but now I do! I am excited to implement into my development going forward. I also like how I got to experiment with both agent mode and plan mode. 

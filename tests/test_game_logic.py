@@ -129,3 +129,20 @@ def test_apply_guess_reaching_limit_marks_game_lost():
     assert result["kind"] == "lost"
     assert state["status"] == "lost"
     assert state["attempts"] == 6
+
+
+def test_apply_guess_correct_on_final_attempt_marks_game_won():
+    state = {
+        "secret": 23,
+        "attempts": 5,
+        "score": 0,
+        "status": "playing",
+        "history": [1, 5, 8, 13, 21],
+    }
+
+    result = apply_guess("23", state, attempt_limit=6)
+
+    assert result["kind"] == "won"
+    assert state["status"] == "won"
+    assert state["attempts"] == 6
+    assert state["history"][-1] == 23
