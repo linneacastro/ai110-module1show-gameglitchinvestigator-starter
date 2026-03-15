@@ -1,13 +1,10 @@
 import streamlit as st
 from logic_utils import (
-    check_guess,
+    apply_guess,
     get_attempt_limit_for_difficulty,
     get_guess_input_key,
     get_range_for_difficulty,
-    is_duplicate_guess,
     new_game_state,
-    parse_guess,
-    update_score,
 )
 
 st.set_page_config(page_title="Glitchy Guesser", page_icon="🎮")
@@ -87,45 +84,28 @@ if st.session_state.status != "playing":
     st.stop()
 
 if submit:
-    ok, guess_int, err = parse_guess(raw_guess)
+    result = apply_guess(raw_guess, st.session_state, attempt_limit)
 
-    if not ok:
-        st.error(err)
-    elif is_duplicate_guess(guess_int, st.session_state.history):
-        st.warning(
-            f"You already guessed {guess_int}. "
-            "Please enter a number you have not guessed before."
-        )
+    if result["kind"] == "error":
+        st.error(result["message"])
+    elif result["kind"] == "duplicate":
+        st.warning(result["message"])
     else:
-        st.session_state.history.append(guess_int)
-        st.session_state.attempts += 1
+        if show_hint and result["hint_message"]:
+            st.warning(result["hint_message"])
 
-        outcome, message = check_guess(guess_int, st.session_state.secret)
-
-        if show_hint:
-            st.warning(message)
-
-        st.session_state.score = update_score(
-            current_score=st.session_state.score,
-            outcome=outcome,
-            attempt_number=st.session_state.attempts,
-        )
-
-        if outcome == "Win":
+        if result["kind"] == "won":
             st.balloons()
-            st.session_state.status = "won"
             st.success(
                 f"You won! The secret was {st.session_state.secret}. "
                 f"Final score: {st.session_state.score}"
             )
-        else:
-            if st.session_state.attempts >= attempt_limit:
-                st.session_state.status = "lost"
-                st.error(
-                    f"Out of attempts! "
-                    f"The secret was {st.session_state.secret}. "
-                    f"Score: {st.session_state.score}"
-                )
+        elif result["kind"] == "lost":
+            st.error(
+                f"Out of attempts! "
+                f"The secret was {st.session_state.secret}. "
+                f"Score: {st.session_state.score}"
+            )
 
 st.divider()
 st.caption("Built by an AI that claims this code is production-ready.")

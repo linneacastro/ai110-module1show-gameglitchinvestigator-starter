@@ -1,4 +1,5 @@
 from logic_utils import (
+    apply_guess,
     check_guess,
     get_attempt_limit_for_difficulty,
     get_guess_input_key,
@@ -80,3 +81,51 @@ def test_guess_input_key_changes_for_each_new_game():
     assert first_key == "guess_input_Normal_1"
     assert second_key == "guess_input_Normal_2"
     assert first_key != second_key
+
+
+def test_apply_guess_stores_first_guess_in_history_and_increments_attempts():
+    state = {
+        "secret": 42,
+        "attempts": 0,
+        "score": 0,
+        "status": "playing",
+        "history": [],
+    }
+
+    result = apply_guess("30", state, attempt_limit=6)
+
+    assert result["kind"] == "continue"
+    assert state["history"] == [30]
+    assert state["attempts"] == 1
+
+
+def test_apply_guess_duplicate_does_not_change_history_or_attempts():
+    state = {
+        "secret": 42,
+        "attempts": 1,
+        "score": -5,
+        "status": "playing",
+        "history": [30],
+    }
+
+    result = apply_guess("30", state, attempt_limit=6)
+
+    assert result["kind"] == "duplicate"
+    assert state["history"] == [30]
+    assert state["attempts"] == 1
+
+
+def test_apply_guess_reaching_limit_marks_game_lost():
+    state = {
+        "secret": 50,
+        "attempts": 5,
+        "score": 0,
+        "status": "playing",
+        "history": [10, 20, 30, 40, 45],
+    }
+
+    result = apply_guess("49", state, attempt_limit=6)
+
+    assert result["kind"] == "lost"
+    assert state["status"] == "lost"
+    assert state["attempts"] == 6

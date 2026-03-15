@@ -1,5 +1,5 @@
 import random
-from typing import Any, Callable, Iterable
+from typing import Any, Callable, Iterable, MutableMapping
 
 
 DIFFICULTY_SETTINGS = {
@@ -114,3 +114,74 @@ def update_score(current_score: int, outcome: str, attempt_number: int):
         return current_score - 5
 
     return current_score
+
+
+def apply_guess(
+    raw_guess: str,
+    game_state: MutableMapping[str, Any],
+    attempt_limit: int,
+):
+    """
+    Apply one guess to game state and return structured result metadata.
+
+    Returns a dict with keys:
+    - kind: one of "error", "duplicate", "continue", "won", "lost"
+    - message: user-facing message for "error" and "duplicate"
+    - hint_message: user-facing hint after valid guesses
+    - outcome: logical outcome label, e.g. "Win", "Too High", "Too Low"
+    """
+    ok, guess_int, err = parse_guess(raw_guess)
+    if not ok:
+        return {
+            "kind": "error",
+            "message": err,
+            "hint_message": None,
+            "outcome": None,
+        }
+
+    history = game_state.setdefault("history", [])
+    if is_duplicate_guess(guess_int, history):
+        return {
+            "kind": "duplicate",
+            "message": (
+                f"You already guessed {guess_int}. "
+                "Please enter a number you have not guessed before."
+            ),
+            "hint_message": None,
+            "outcome": None,
+        }
+
+    history.append(guess_int)
+    game_state["attempts"] = int(game_state.get("attempts", 0)) + 1
+
+    outcome, hint_message = check_guess(guess_int, game_state["secret"])
+    game_state["score"] = update_score(
+        current_score=int(game_state.get("score", 0)),
+        outcome=outcome,
+        attempt_number=game_state["attempts"],
+    )
+
+    if outcome == "Win":
+        game_state["status"] = "won"
+        return {
+            "kind": "won",
+            "message": None,
+            "hint_message": hint_message,
+            "outcome": outcome,
+        }
+
+    if game_state["attempts"] >= attempt_limit:
+        game_state["status"] = "lost"
+        return {
+            "kind": "lost",
+            "message": None,
+            "hint_message": hint_message,
+            "outcome": outcome,
+        }
+
+    return {
+        "kind": "continue",
+        "message": None,
+        "hint_message": hint_message,
+        "outcome": outcome,
+    }
