@@ -1,4 +1,12 @@
-from typing import Iterable, Any
+import random
+from typing import Any, Callable, Iterable
+
+
+ATTEMPT_LIMITS = {
+    "Easy": 6,
+    "Normal": 8,
+    "Hard": 5,
+}
 
 
 def get_range_for_difficulty(difficulty: str):
@@ -10,6 +18,35 @@ def get_range_for_difficulty(difficulty: str):
     if difficulty == "Hard":
         return 1, 50
     return 1, 100
+
+
+def get_attempt_limit_for_difficulty(difficulty: str) -> int:
+    """Return the maximum number of attempts for a difficulty."""
+    return ATTEMPT_LIMITS.get(difficulty, ATTEMPT_LIMITS["Normal"])
+
+
+def get_guess_input_key(difficulty: str, game_number: int) -> str:
+    """Return a unique text input key for the current game instance."""
+    return f"guess_input_{difficulty}_{game_number}"
+
+
+def new_game_state(
+    difficulty: str,
+    previous_game_number: int = 0,
+    randint_func: Callable[[int, int], int] | None = None,
+):
+    """Return fresh game state for a new round."""
+    low, high = get_range_for_difficulty(difficulty)
+    random_number = randint_func or random.randint
+
+    return {
+        "secret": random_number(low, high),
+        "attempts": 0,
+        "score": 0,
+        "status": "playing",
+        "history": [],
+        "game_number": previous_game_number + 1,
+    }
 
 
 def parse_guess(raw: str):

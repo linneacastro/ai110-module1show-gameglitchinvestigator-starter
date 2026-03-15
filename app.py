@@ -1,9 +1,11 @@
-import random
 import streamlit as st
 from logic_utils import (
     check_guess,
+    get_attempt_limit_for_difficulty,
+    get_guess_input_key,
     get_range_for_difficulty,
     is_duplicate_guess,
+    new_game_state,
     parse_guess,
     update_score,
 )
@@ -21,32 +23,26 @@ difficulty = st.sidebar.selectbox(
     index=1,
 )
 
-attempt_limit_map = {
-    "Easy": 6,
-    "Normal": 8,
-    "Hard": 5,
-}
-attempt_limit = attempt_limit_map[difficulty]
+attempt_limit = get_attempt_limit_for_difficulty(difficulty)
 
 low, high = get_range_for_difficulty(difficulty)
 
 st.sidebar.caption(f"Range: {low} to {high}")
 st.sidebar.caption(f"Attempts allowed: {attempt_limit}")
 
-if "secret" not in st.session_state:
-    st.session_state.secret = random.randint(low, high)
+if "game_number" not in st.session_state:
+    st.session_state.game_number = 0
 
-if "attempts" not in st.session_state:
-    st.session_state.attempts = 0
-
-if "score" not in st.session_state:
-    st.session_state.score = 0
-
-if "status" not in st.session_state:
-    st.session_state.status = "playing"
-
-if "history" not in st.session_state:
-    st.session_state.history = []
+if "difficulty" not in st.session_state or "secret" not in st.session_state:
+    st.session_state.update(
+        new_game_state(difficulty, previous_game_number=st.session_state.game_number)
+    )
+    st.session_state.difficulty = difficulty
+elif st.session_state.difficulty != difficulty:
+    st.session_state.update(
+        new_game_state(difficulty, previous_game_number=st.session_state.game_number)
+    )
+    st.session_state.difficulty = difficulty
 
 st.subheader("Make a guess")
 
@@ -64,7 +60,7 @@ with st.expander("Developer Debug Info"):
 
 raw_guess = st.text_input(
     "Enter your guess:",
-    key=f"guess_input_{difficulty}"
+    key=get_guess_input_key(difficulty, st.session_state.game_number)
 )
 
 col1, col2, col3 = st.columns(3)
@@ -76,12 +72,10 @@ with col3:
     show_hint = st.checkbox("Show hint", value=True)
 
 if new_game:
-    st.session_state.history = []
-    st.session_state.attempts = 0
-    st.session_state.score = 0
-    st.session_state.status = "playing"
-    st.session_state.secret = random.randint(low, high)
-    st.session_state[f"guess_input_{difficulty}"] = ""
+    st.session_state.update(
+        new_game_state(difficulty, previous_game_number=st.session_state.game_number)
+    )
+    st.session_state.difficulty = difficulty
     st.success("New game started.")
     st.rerun()
 

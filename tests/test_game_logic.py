@@ -1,4 +1,10 @@
-from logic_utils import check_guess, is_duplicate_guess
+from logic_utils import (
+    check_guess,
+    get_attempt_limit_for_difficulty,
+    get_guess_input_key,
+    is_duplicate_guess,
+    new_game_state,
+)
 
 
 def test_winning_guess():
@@ -17,12 +23,53 @@ def test_check_guess_reports_high_and_low_in_correct_direction():
     assert too_low_outcome == "Too Low"
     assert "HIGHER" in too_low_message
 
+
 def test_is_duplicate_guess_rejects_repeated_number():
     history = [10, 99, 42]
 
     assert is_duplicate_guess(99, history) is True
 
+
 def test_is_duplicate_guess_accepts_new_number():
     history = [10, 99, 42]
 
     assert is_duplicate_guess(7, history) is False
+
+
+def test_attempt_limit_matches_selected_difficulty():
+    assert get_attempt_limit_for_difficulty("Easy") == 6
+    assert get_attempt_limit_for_difficulty("Normal") == 8
+    assert get_attempt_limit_for_difficulty("Hard") == 5
+
+
+def test_new_game_state_resets_fields_and_picks_secret_in_range():
+    calls = []
+
+    def fake_randint(low, high):
+        calls.append((low, high))
+        return 17
+
+    state = new_game_state(
+        "Easy",
+        previous_game_number=2,
+        randint_func=fake_randint,
+    )
+
+    assert calls == [(1, 20)]
+    assert state == {
+        "secret": 17,
+        "attempts": 0,
+        "score": 0,
+        "status": "playing",
+        "history": [],
+        "game_number": 3,
+    }
+
+
+def test_guess_input_key_changes_for_each_new_game():
+    first_key = get_guess_input_key("Normal", 1)
+    second_key = get_guess_input_key("Normal", 2)
+
+    assert first_key == "guess_input_Normal_1"
+    assert second_key == "guess_input_Normal_2"
+    assert first_key != second_key
